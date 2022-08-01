@@ -23,6 +23,7 @@ import cv2
 from PIL import Image
 from tqdm import tqdm
 import gc
+from train_ft import gen_points_filter_embeddings
 
 def mse2psnr(x): return -10.* torch.log(x)/np.log(10.)
 
@@ -317,6 +318,7 @@ def main():
         opt.is_train=True
 
     model = create_model(opt)
+    
     model.setup(opt, train_len=len(train_dataset))
     # create test loader
     test_opt = copy.deepcopy(opt)

@@ -263,7 +263,7 @@ def test(model, dataset, visualizer, opt, bg_info, test_steps=0, gen_vid=False, 
     height = dataset.height
     width = dataset.width
     visualizer.reset()
-    count = 0;
+    count = 0
     for i in range(0, total_num, opt.test_num_step): # 1 if test_steps == 10000 else opt.test_num_step
         data = dataset.get_item(i)
         raydir = data['raydir'].clone()
@@ -398,7 +398,7 @@ def test(model, dataset, visualizer, opt, bg_info, test_steps=0, gen_vid=False, 
             visualizer.print_details("{} loss:{}, PSNR:{}".format("ray_depth_masked_coarse_raycolor", loss, mse2psnr(loss)))
         print(acc_dict.items())
         visualizer.accumulate_losses(acc_dict)
-        count+=1
+        count += 1
 
     visualizer.print_losses(count)
     psnr = visualizer.get_psnr(opt.test_color_loss_items[0])
@@ -594,6 +594,7 @@ def main():
         print(
             '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++' +
             fmt.END)
+    
     visualizer = Visualizer(opt)
     train_dataset = create_dataset(opt)
     normRw2c = train_dataset.norm_w2c[:3,:3] # torch.eye(3, device="cuda") #
@@ -611,19 +612,23 @@ def main():
             if opt.resume_iter == "best":
                 opt.resume_iter = "latest"
             resume_iter = opt.resume_iter if opt.resume_iter != "latest" else get_latest_epoch(resume_dir)
+            
             if resume_iter is None:
                 epoch_count = 1
                 total_steps = 0
                 visualizer.print_details("No previous checkpoints, start from scratch!!!!")
             else:
                 opt.resume_iter = resume_iter
+                
                 states = torch.load(
                     os.path.join(resume_dir, '{}_states.pth'.format(resume_iter)), map_location=cur_device)
+
                 epoch_count = states['epoch_count']
                 total_steps = states['total_steps']
                 best_PSNR = states['best_PSNR'] if 'best_PSNR' in states else best_PSNR
                 best_iter = states['best_iter'] if 'best_iter' in states else best_iter
                 best_PSNR = best_PSNR.item() if torch.is_tensor(best_PSNR) else best_PSNR
+
                 visualizer.print_details('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
                 visualizer.print_details('Continue training from {} epoch'.format(opt.resume_iter))
                 visualizer.print_details(f"Iter: {total_steps}")
@@ -649,14 +654,17 @@ def main():
             model = create_model(opt)
             model.setup(opt)
             model.eval()
+
             if load_points in [1,3]:
                 points_xyz_all = train_dataset.load_init_points()
             if load_points == 2:
                 points_xyz_all = train_dataset.load_init_depth_points(device="cuda", vox_res=100)
             if load_points == 3:
                 depth_xyz_all = train_dataset.load_init_depth_points(device="cuda", vox_res=80)
+                
                 print("points_xyz_all",points_xyz_all.shape)
                 print("depth_xyz_all", depth_xyz_all.shape)
+                
                 filter_res = 100
                 pc_grid_id, _, pc_space_min, pc_space_max = mvs_utils.construct_vox_points_ind(points_xyz_all, filter_res)
                 d_grid_id, depth_inds, _, _ = mvs_utils.construct_vox_points_ind(depth_xyz_all, filter_res, space_min=pc_space_min, space_max=pc_space_max)
@@ -671,7 +679,9 @@ def main():
                 depth_maskinds = mask[depth_maskinds[...,0], depth_maskinds[...,1], depth_maskinds[...,2]]
                 depth_xyz_all = depth_xyz_all[depth_maskinds > 0]
                 visualizer.save_neural_points("dep_filtered", depth_xyz_all, None, None, save_ref=False)
+
                 print("vis depth; after pc mask depth_xyz_all",depth_xyz_all.shape)
+                
                 points_xyz_all = [points_xyz_all, depth_xyz_all] if opt.vox_res > 0 else torch.cat([points_xyz_all, depth_xyz_all],dim=0)
                 del depth_xyz_all, depth_maskinds, mask, pc_maskgrid_id, max_id_lst, max_id, min_id, all_grid
 
@@ -813,7 +823,9 @@ def main():
             test_dataset = create_dataset(test_opt)
             model.opt.is_train = 0
             model.opt.no_loss = 1
+            
             test(model, test_dataset, Visualizer(test_opt), test_opt, test_bg_info, test_steps=total_steps)
+            
             model.opt.no_loss = 0
             model.opt.is_train = 1
             model.train()
@@ -1009,7 +1021,7 @@ def main():
         #     print(e)
 
         if opt.maximum_step is not None and total_steps >= opt.maximum_step:
-            visualizer.print_details('{}: End of stepts {} / {} \t Time Taken: {} sec'.format(
+            visualizer.print_details('{}: End of steps {} / {} \t Time Taken: {} sec'.format(
                 opt.name, total_steps, opt.maximum_step,
                 time.time() - epoch_start_time))
             break

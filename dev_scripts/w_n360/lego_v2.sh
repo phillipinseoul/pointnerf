@@ -4,7 +4,7 @@ nrDataRoot="../data_src"
 name='lego'
 
 resume_iter=best #
-save_point_freq=40
+# save_point_freq=40
 
 data_root="${nrDataRoot}/nerf/nerf_synthetic/"
 scan="lego"
@@ -19,6 +19,9 @@ normview=0
 prune_thresh=0.1
 prune_iter=10001
 prune_max_iter=130000
+# prune_thresh=-1
+# prune_iter=-1
+# prune_max_iter=-1
 
 feedforward=0
 ref_vid=0
@@ -84,7 +87,6 @@ shading_feature_num=256
 dist_xyz_freq=5
 num_feat_freqs=3
 dist_xyz_deno=0
-
 
 raydist_mode_unit=1
 dataset_name='nerf_synth360_ft'

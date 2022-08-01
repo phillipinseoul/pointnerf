@@ -333,7 +333,7 @@ def main():
             model.opt.is_train = 1
 
         if opt.maximum_step is not None and total_steps == opt.maximum_step:
-            print('{}: End of stepts {} / {} \t Time Taken: {} sec'.format(
+            print('{}: End of steps {} / {} \t Time Taken: {} sec'.format(
                 opt.name, total_steps, opt.maximum_step,
                 time.time() - epoch_start_time))
             break

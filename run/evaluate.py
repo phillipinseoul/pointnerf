@@ -7,8 +7,10 @@ except:
     from skimage.metrics import structural_similarity
     from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
-    def compare_ssim(gt, img, win_size, multichannel=True):
-        return structural_similarity(gt, img, win_size=win_size, multichannel=multichannel)
+    # def compare_ssim(gt, img, win_size, multichannel=True):
+    #    return structural_similarity(gt, img, win_size=win_size, multichannel=multichannel)
+    def compare_ssim(gt, img, win_size, channel_axis=-1):    
+        return structural_similarity(gt, img, win_size=win_size, channel_axis=channel_axis)
 
 
 import torch
@@ -58,7 +60,8 @@ def report_metrics(gtFolder, imgFolder, outFolder, metrics, id_list, imgStr="ste
             if key == "psnr":
                 val = compare_psnr(gt, img)
             elif key == "ssim":
-                val = compare_ssim(gt, img, 11, multichannel=True)
+                # val = compare_ssim(gt, img, 11, multichannel=True)
+                val = compare_ssim(gt, img, 11, channel_axis=-1)
             elif key == "lpips":
                 # image should be RGB, IMPORTANT: normalized to [-1,1]
                 img_tensor = torch.from_numpy(img)[None].permute(0, 3, 1, 2).float() * 2 - 1.0
